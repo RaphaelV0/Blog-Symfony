@@ -1,0 +1,26 @@
+{# templates/home/index.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block body %}
+<h1>Dernier article</h1>
+{% if lastArticle %}
+    <article>
+        <h2>{{ lastArticle.titre }}</h2>
+        <p>{{ lastArticle.corps }}</p>
+        <p><small>Publié le {{ lastArticle.datePublication|date('d/m/Y H:i') }}</small></p>
+    </article>
+{% else %}
+    <p>Aucun article publié pour le moment.</p>
+{% endif %}
+
+<aside>
+    <h3>Articles récents</h3>
+    <ul>
+        {% for article in recentArticles %}
+            <li><a href="{{ path('article_show', {id: article.id}) }}">{{ article.titre }}</a></li>
+        {% endfor %}
+    </ul>
+</aside>
+{% endblock %}
