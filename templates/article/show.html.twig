@@ -1,0 +1,58 @@
+{# templates/article/show.html.twig #}
+
+<div class="article-container">
+    <div class="article-main">
+        <h1>{{ article.titre }}</h1>
+        <p>{{ article.corps }}</p>
+
+        <h2>Commentaires</h2>
+        <div>
+            {% for commentaire in article.commentaires %}
+                <div>
+                    <p>{{ commentaire.contenu }}</p>
+                    <p><em>Publié le {{ commentaire.dateCommentaire|date('d/m/Y H:i') }}</em></p>
+                </div>
+            {% else %}
+                <p>Aucun commentaire pour cet article.</p>
+            {% endfor %}
+        </div>
+
+        <h3>Ajouter un commentaire</h3>
+        {{ form_start(form) }}
+            {{ form_widget(form) }}
+            <button type="submit">Ajouter le commentaire</button>
+        {{ form_end(form) }}
+    </div>
+
+    <div class="article-sidebar">
+        <h3>Autres articles</h3>
+        <ul>
+            {% for other_article in articles %}
+                {% if other_article.id != article.id %}
+                    <li>
+                        <a href="{{ path('article_show', {'id': other_article.id}) }}">{{ other_article.titre }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<style>
+    .article-container {
+        display: flex;
+        justify-content: space-between;
+    }
+    .article-main {
+        width: 70%;
+    }
+    .article-sidebar {
+        width: 25%;
+        padding: 10px;
+        background-color: #f0f0f0;
+        border-radius: 5px;
+    }
+    .article-sidebar h3 {
+        margin-top: 0;
+    }
+</style>
