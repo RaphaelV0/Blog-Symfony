@@ -43,4 +43,64 @@ class ArticleController extends AbstractController
             'form' => $form->createView(),  // Passer le formulaire à la vue
         ]);
     }
+    #[Route('/', name: 'article_index')]
+    public function index(EntityManagerInterface $entityManager): Response
+    {
+        // Récupérer tous les articles
+        $articles = $entityManager->getRepository(Article::class)->findAll();
+
+        // Retourner les articles à la vue
+        return $this->render('article/index.html.twig', [
+            'articles' => $articles,
+        ]);
+    }
+    #[Route('/article/{id}/edit', name: 'article_edit')]
+public function edit(Article $article, Request $request, EntityManagerInterface $entityManager): Response
+{
+    $this->denyAccessUnlessGranted('ROLE_ADMIN'); // Vérifie que l'utilisateur est admin
+
+    $form = $this->createForm(ArticleType::class, $article);
+    $form->handleRequest($request);
+
+    if ($form->isSubmitted() && $form->isValid()) {
+        $entityManager->flush();
+        return $this->redirectToRoute('article_index');
+    }
+
+    return $this->render('article/edit.html.twig', [
+        'form' => $form->createView(),
+    ]);
+}
+#[Route('/article/{id}/delete', name: 'article_delete')]
+public function delete(Article $article, EntityManagerInterface $entityManager): Response
+{
+    $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+    $entityManager->remove($article);
+    $entityManager->flush();
+
+    return $this->redirectToRoute('article_index');
+}
+#[Route('/article/add', name: 'article_add')]
+public function add(Request $request, EntityManagerInterface $entityManager): Response
+{
+    $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+    $article = new Article();
+    $form = $this->createForm(ArticleType::class, $article);
+    $form->handleRequest($request);
+
+    if ($form->isSubmitted() && $form->isValid()) {
+        $article->setDatePublication(new \DateTime());
+        $entityManager->persist($article);
+        $entityManager->flush();
+
+        return $this->redirectToRoute('article_index');
+    }
+
+    return $this->render('article/add.html.twig', [
+        'form' => $form->createView(),
+    ]);
+}
+
 }
