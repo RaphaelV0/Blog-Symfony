@@ -4,6 +4,7 @@
     <div class="article-main">
         <h1>{{ article.titre }}</h1>
         <p>{{ article.corps }}</p>
+<a href="{{ path('article_index') }}">Retour à la liste des articles</a>
 
         <h2>Commentaires</h2>
         <div>
@@ -14,6 +15,8 @@
                 </div>
             {% else %}
                 <p>Aucun commentaire pour cet article.</p>
+                <a href="{{ path('comment_add', {'articleId': article.id}) }}">Ajouter un commentaire</a>
+
             {% endfor %}
         </div>
 
@@ -37,6 +40,17 @@
         </ul>
     </div>
 </div>
+{% for commentaire in article.commentaires %}
+    <div>
+        <p>{{ commentaire.contenu }}</p>
+        <p><em>Publié le {{ commentaire.dateCommentaire|date('d/m/Y H:i') }}</em></p>
+        
+        {% if is_granted('ROLE_ADMIN') %}
+            <a href="{{ path('comment_edit', {'id': commentaire.id}) }}">Modifier</a>
+            <a href="{{ path('comment_delete', {'id': commentaire.id}) }}" onclick="return confirm('Voulez-vous vraiment supprimer ce commentaire ?');">Supprimer</a>
+        {% endif %}
+    </div>
+{% endfor %}
 
 <style>
     .article-container {
