@@ -13,6 +13,28 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class ArticleController extends AbstractController
 {
+    #[Route('/article/add', name: 'article_add')]
+public function add(Request $request, EntityManagerInterface $entityManager): Response
+{
+    $this->denyAccessUnlessGranted('ROLE_USER');
+
+    $article = new Article();
+    $form = $this->createForm(ArticleType::class, $article);
+    $form->handleRequest($request);
+
+    if ($form->isSubmitted() && $form->isValid()) {
+        $article->setDatePublication(new \DateTime());
+        $entityManager->persist($article);
+        $entityManager->flush();
+
+        return $this->redirectToRoute('article_index');
+    }
+
+    return $this->render('article/add.html.twig', [
+        'form' => $form->createView(),
+    ]);
+}
+
     #[Route('/article/{id}', name: 'article_show')]
     public function show(Article $article, Request $request, EntityManagerInterface $entityManager): Response
     {
@@ -57,7 +79,7 @@ class ArticleController extends AbstractController
     #[Route('/article/{id}/edit', name: 'article_edit')]
 public function edit(Article $article, Request $request, EntityManagerInterface $entityManager): Response
 {
-    $this->denyAccessUnlessGranted('ROLE_ADMIN'); // Vérifie que l'utilisateur est admin
+    $this->denyAccessUnlessGranted('ROLE_USER'); // Vérifie que l'utilisateur est user
 
     $form = $this->createForm(ArticleType::class, $article);
     $form->handleRequest($request);
@@ -74,33 +96,13 @@ public function edit(Article $article, Request $request, EntityManagerInterface 
 #[Route('/article/{id}/delete', name: 'article_delete')]
 public function delete(Article $article, EntityManagerInterface $entityManager): Response
 {
-    $this->denyAccessUnlessGranted('ROLE_ADMIN');
+    $this->denyAccessUnlessGranted('ROLE_USER');
 
     $entityManager->remove($article);
     $entityManager->flush();
 
     return $this->redirectToRoute('article_index');
 }
-#[Route('/article/add', name: 'article_add')]
-public function add(Request $request, EntityManagerInterface $entityManager): Response
-{
-    $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
-    $article = new Article();
-    $form = $this->createForm(ArticleType::class, $article);
-    $form->handleRequest($request);
-
-    if ($form->isSubmitted() && $form->isValid()) {
-        $article->setDatePublication(new \DateTime());
-        $entityManager->persist($article);
-        $entityManager->flush();
-
-        return $this->redirectToRoute('article_index');
-    }
-
-    return $this->render('article/add.html.twig', [
-        'form' => $form->createView(),
-    ]);
-}
 
 }

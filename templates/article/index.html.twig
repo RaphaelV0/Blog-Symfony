@@ -1,20 +1,31 @@
-<h1>Liste des articles</h1>
-<a href="{{ path('article_add') }}">Ajouter un article</a>
+{% extends 'base.html.twig' %}
 
-<ul>
-    {% for article in articles %}
-        <li>
-        
-            <a href="{{ path('article_show', {'id': article.id}) }}">
-                {{ article.titre }}
-            </a>
-            <p>{{ article.datePublication|date('d/m/Y') }}</p>
-            <p>{{ article.corps[:150] ~ '...' }}</p>
-            <a href="{{ path('article_edit', {'id': article.id}) }}">Modifier</a>
-<a href="{{ path('article_delete', {'id': article.id}) }}" onclick="return confirm('Voulez-vous vraiment supprimer cet article ?');">Supprimer</a>
+{% block title %}Liste des articles{% endblock %}
 
-        </li>
-    {% else %}
-        <li>Aucun article disponible pour le moment.</li>
-    {% endfor %}
-</ul>
+{% block body %}
+    <h1>Liste des articles</h1>
+
+    <!-- Lien pour ajouter un nouvel article -->
+    <a href="{{ path('article_add') }}" class="btn btn-primary">Ajouter un article</a>
+
+    <!-- Liste des articles -->
+    <ul>
+        {% for article in articles %}
+            <li>
+                <a href="{{ path('article_show', {'id': article.id}) }}">
+                    <h2>{{ article.titre }}</h2>
+                </a>
+                <p><strong>Publié le : </strong>{{ article.datePublication|date('d/m/Y') }}</p>
+                <p>{{ article.corps[:150] ~ '...' }}</p>
+
+                <!-- Liens pour modifier et supprimer -->
+                <a href="{{ path('article_edit', {'id': article.id}) }}" class="btn btn-secondary">Modifier</a>
+                <a href="{{ path('article_delete', {'id': article.id}) }}" 
+                   class="btn btn-danger" 
+                   onclick="return confirm('Voulez-vous vraiment supprimer cet article ?');">Supprimer</a>
+            </li>
+        {% else %}
+            <li>Aucun article disponible pour le moment.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

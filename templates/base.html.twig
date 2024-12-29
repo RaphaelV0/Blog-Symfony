@@ -1,17 +1,161 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
-        {% block stylesheets %}
-        {% endblock %}
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Bienvenue sur mon site{% endblock %}</title>
+    <link rel="stylesheet" href="{{ asset('styles.css') }}">
 
-        {% block javascripts %}
-            {% block importmap %}{{ importmap('app') }}{% endblock %}
+    <style>
+        /* Reset basic styles */
+        body, h1, p, ul, li, a {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: #f4f4f9;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: #4CAF50;
+            padding: 15px 0;
+            color: white;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+
+        header nav ul {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            list-style: none;
+            padding: 0 20px;
+        }
+
+        header nav ul li {
+            margin: 0 10px;
+        }
+
+        header nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        header nav ul li a:hover {
+            background-color: #45a049;
+        }
+
+        #logo {
+            width: 40px;
+            height: auto;
+        }
+
+        .btn {
+            background-color: #007BFF;
+            padding: 10px 15px;
+            border-radius: 5px;
+            color: white;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        .btn:active {
+            background-color: #004085;
+        }
+
+        main {
+            margin-top: 80px;
+            padding: 20px;
+        }
+
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+        }
+
+        footer p {
+            font-size: 14px;
+        }
+
+        .welcome-message {
+            font-weight: bold;
+            color: #4CAF50;
+        }
+
+        .logout {
+            background-color: #dc3545;
+        }
+
+        .logout:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li>
+                    <!-- Lien vers la page d'accueil avec l'image du site -->
+                    <a href="{{ path('home') }}">
+                        <img src="{{ asset('images/logo.png') }}" alt="Logo du site" id="logo">
+                    </a>
+                </li>
+                <li>
+                    <!-- Lien vers la liste des articles -->
+                    <a href="{{ path('article_index') }}" class="btn">Liste des articles</a>
+                </li>
+                {% if not app.user %}
+                    <!-- Si l'utilisateur n'est pas connecté, afficher les boutons d'inscription et de connexion -->
+                    <li>
+                        <a href="{{ path('app_register') }}" class="btn">Inscription</a>
+                    </li>
+                    <li>
+                        <a href="{{ path('app_login') }}" class="btn">Connexion</a>
+                    </li>
+                {% else %}
+                    <!-- Si l'utilisateur est connecté, afficher son nom ou un bouton de déconnexion -->
+                    <li>
+                        <span class="welcome-message">Bienvenue, {{ app.user.username }}</span>
+                    </li>
+                    <li>
+                        <a href="{{ path('logout') }}" class="btn logout">Déconnexion</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        {% block body %}
+        <!-- Le contenu principal de la page sera injecté ici -->
         {% endblock %}
-    </head>
-    <body>
-        {% block body %}{% endblock %}
-    </body>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Mon Site. Tous droits réservés.</p>
+    </footer>
+</body>
 </html>

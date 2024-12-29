@@ -1,7 +1,7 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <h2>Inscription</h2>
+    <h2>Connexion</h2>
     <div class="row justify-content-center">
         <div class="col-md-6">
             {{ form_start(form) }}
@@ -13,16 +13,9 @@
                 {% endfor %}
             </div>
             <div class="mb-3">
-                {{ form_label(form.password.first) }}
-                {{ form_widget(form.password.first, {'attr': {'class': 'form-control'}}) }}
-                {% for error in form.password.first.vars.errors %}
-                    <div class="text-danger">{{ error.message }}</div>
-                {% endfor %}
-            </div>
-            <div class="mb-3">
-                {{ form_label(form.password.second) }}
-                {{ form_widget(form.password.second, {'attr': {'class': 'form-control'}}) }}
-                {% for error in form.password.second.vars.errors %}
+                {{ form_label(form.password) }}
+                {{ form_widget(form.password, {'attr': {'class': 'form-control'}}) }}
+                {% for error in form.password.vars.errors %}
                     <div class="text-danger">{{ error.message }}</div>
                 {% endfor %}
             </div>
@@ -32,4 +25,8 @@
             {{ form_end(form) }}
         </div>
     </div>
+
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-danger">{{ message }}</div>
+    {% endfor %}
 {% endblock %}
