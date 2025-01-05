@@ -16,7 +16,17 @@ security:
         main:
             lazy: true
             provider: app_user_provider
-
+            form_login:
+                login_path: app_login
+                check_path: app_login
+                username_parameter: username
+                password_parameter: password
+                default_target_path: app_home  # Rediriger vers la page d'accueil après la connexion réussie
+                failure_path: app_login        # Rediriger vers la page de login si l'authentification échoue
+            logout:
+                path: app_logout
+                # Rediriger après déconnexion
+                target: app_home
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
 
