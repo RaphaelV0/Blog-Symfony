@@ -27,11 +27,16 @@ class Article
     #[Assert\NotBlank(message: 'La date de publication ne peut pas être vide.')]
     private \DateTimeInterface $datePublication;
 
+    
+
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $image = null;
 
     #[ORM\OneToMany(mappedBy: 'article', targetEntity: Commentaire::class, orphanRemoval: true)]
     private Collection $commentaires;
+
+    #[ORM\Column(type: 'boolean')]
+    private bool $etatPublication = false;
 
     public function __construct()
     {
@@ -112,4 +117,15 @@ class Article
 
         return $this;
     }
+    public function getEtatPublication(): bool
+    {
+        return $this->etatPublication;
+    }
+
+    public function setEtatPublication(bool $etatPublication): self
+    {
+        $this->etatPublication = $etatPublication;
+        return $this;
+    }
+
 }

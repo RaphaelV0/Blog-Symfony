@@ -1,104 +1,12 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Modifier l'article{% endblock %}
+{% block title %}Modifier un article{% endblock %}
 
 {% block body %}
     <h1>Modifier l'article</h1>
 
-    <form action="{{ path('article_edit', {'id': article.id}) }}" method="post" enctype="multipart/form-data">
-        {{ form_start(form) }}
-        
-        <!-- Titre modifiable via contenteditable -->
-        <div>
-            <label for="article_titre">Titre</label>
-            <div id="article_titre" contenteditable="true" class="editable" data-field="titre">{{ article.titre }}</div>
-        </div>
-
-        <!-- Corps modifiable via contenteditable -->
-        <div>
-            <label for="article_corps">Corps</label>
-            <div id="article_corps" contenteditable="true" class="editable" data-field="corps">{{ article.corps }}</div>
-        </div>
-
-        <!-- Image actuelle de l'article -->
-        {% if article.image %}
-            <div>
-                <p>Image actuelle :</p>
-                <img src="{{ asset('uploads/images/' ~ article.image) }}" alt="Image de l'article" style="max-width: 100px;">
-            </div>
-        {% endif %}
-
-        <!-- Zone de drag & drop pour ajouter une image -->
-        <div id="image-dropzone" class="dropzone">
-            <p>Déposez une image ici ou cliquez pour sélectionner un fichier.</p>
-            <input type="file" id="article_image" name="article[image]" accept="image/*" style="display:none;">
-        </div>
-
-        <!-- Soumettre le formulaire -->
-        <button type="submit" class="btn btn-primary">Enregistrer</button>
-
-        {{ form_end(form) }}
-    </form>
-
-    <script>
-        // Gérer l'édition du titre et du corps via AJAX (mise à jour en temps réel)
-        document.querySelectorAll('.editable').forEach(function(element) {
-            element.addEventListener('blur', function() {
-                const field = element.getAttribute('data-field');
-                const content = element.innerText;
-                const articleId = {{ article.id }};
-                
-                fetch('{{ path('article_update') }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest',
-                    },
-                    body: JSON.stringify({
-                        id: articleId,
-                        field: field,
-                        content: content
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (!data.success) {
-                        alert('Erreur lors de la mise à jour.');
-                    }
-                })
-                .catch(error => alert('Erreur de communication avec le serveur.'));
-            });
-        });
-
-        // Gérer l'upload d'une image
-        document.getElementById('image-dropzone').addEventListener('click', function() {
-            document.getElementById('article_image').click();
-        });
-
-        document.getElementById('article_image').addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('articleId', {{ article.id }});
-
-            fetch('{{ path('article_upload_image') }}', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Afficher l'image après le téléchargement
-                    const imageUrl = data.imageUrl;
-                    const img = document.createElement('img');
-                    img.src = imageUrl;
-                    img.style.maxWidth = '100px';
-                    document.getElementById('image-dropzone').appendChild(img);
-                } else {
-                    alert('Erreur lors du téléchargement de l\'image.');
-                }
-            })
-            .catch(error => alert('Erreur de communication avec le serveur.'));
-        });
-    </script>
+    {{ form_start(form) }}
+        {{ form_widget(form) }}
+        <button class="btn btn-warning">Sauvegarder les modifications</button>
+    {{ form_end(form) }}
 {% endblock %}

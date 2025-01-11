@@ -5,91 +5,40 @@
 {% block body %}
     <h1>Liste des articles</h1>
 
-    <!-- Vérifier si l'utilisateur est administrateur -->
-    {% if is_granted('ROLE_ADMIN') %}
-        <!-- Lien pour ajouter un nouvel article -->
-        <a href="{{ path('article_add') }}" class="btn btn-primary mb-3">Ajouter un article</a>
-    {% endif %}
-
-    <!-- Liste des articles -->
     <ul>
         {% for article in articles %}
-            <li class="article-item">
-                <!-- Afficher l'image de l'article s'il y en a une -->
+            <li>
+                <h2><a href="{{ path('article_show', {'id': article.id}) }}">{{ article.titre }}</a></h2>
+
+                {# Affichage de l'image si elle existe #}
                 {% if article.image %}
-                    <img src="{{ asset('uploads/images/' ~ article.image) }}" alt="{{ article.titre }}" class="article-image" />
-                {% else %}
-                    <img src="{{ asset('images/default-article.jpg') }}" alt="Image par défaut" class="article-image" />
+                    <div class="article-image">
+                        <img src="{{ asset('uploads/images/' ~ article.image) }}" alt="Image de l'article" class="img-thumbnail" width="100">
+                    </div>
                 {% endif %}
 
-                <!-- Titre cliquable -->
-                <a href="{{ path('article_show', {'id': article.id}) }}">
-                    <h2>{{ article.titre }}</h2>
-                </a>
+                <p>{{ article.corps|slice(0, 100) }}...</p>
 
-                <p><strong>Publié le : </strong>{{ article.datePublication|date('d/m/Y') }}</p>
+                {# Affichage de la date de publication #}
+                <p><small>Publié le : {{ article.datePublication|date('d/m/Y') }}</small></p>
 
-                <p class="article-body">{{ article.corps[:150] ~ '...' }}</p>
-
-                <!-- Liens pour modifier et supprimer (accessible uniquement pour l'admin) -->
+                {# Actions disponibles pour les administrateurs #}
                 {% if is_granted('ROLE_ADMIN') %}
-                    <a href="{{ path('article_edit', {'id': article.id}) }}" class="btn btn-secondary">Modifier</a>
-                    <a href="{{ path('article_delete', {'id': article.id}) }}" 
-                       class="btn btn-danger" 
-                       onclick="return confirm('Voulez-vous vraiment supprimer cet article ?');">Supprimer</a>
+                    <div class="article-actions">
+                        <a href="{{ path('article_edit', {'id': article.id}) }}" class="btn btn-primary">Modifier</a>
+                        <a href="{{ path('article_delete', {'id': article.id}) }}" 
+                           onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet article ?');" 
+                           class="btn btn-danger">Supprimer</a>
+                    </div>
                 {% endif %}
             </li>
-        {% else %}
-            <li>Aucun article disponible pour le moment.</li>
         {% endfor %}
     </ul>
-{% endblock %}
 
-{% block stylesheets %}
-    {{ parent() }}
-    <style>
-        .article-item {
-            margin-bottom: 20px;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .article-image {
-            max-width: 200px;
-            height: auto;
-            margin-bottom: 15px;
-        }
-
-        .article-item a {
-            text-decoration: none;
-            color: #007bff;
-        }
-
-        .article-item a:hover {
-            text-decoration: underline;
-        }
-
-        .article-item h2 {
-            font-size: 1.5em;
-            margin: 0;
-        }
-
-        .article-item p {
-            margin: 10px 0;
-        }
-
-        .btn {
-            margin-top: 10px;
-            margin-right: 5px;
-        }
-
-        .article-body {
-            text-align: justify;
-            margin-bottom: 10px;
-        }
-    </style>
+    {# Bouton pour ajouter un article visible pour les administrateurs #}
+    {% if is_granted('ROLE_ADMIN') %}
+        <div class="add-article">
+            <a href="{{ path('article_add') }}" class="btn btn-success">Ajouter un article</a>
+        </div>
+    {% endif %}
 {% endblock %}

@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Supprimer un article{% endblock %}
+
+{% block body %}
+    <h1>Êtes-vous sûr de vouloir supprimer cet article ?</h1>
+
+    <p><strong>{{ article.titre }}</strong></p>
+
+    <form method="POST">
+        <button type="submit" class="btn btn-danger">Oui, supprimer</button>
+        <a href="{{ path('article_index') }}" class="btn btn-secondary">Annuler</a>
+    </form>
+{% endblock %}

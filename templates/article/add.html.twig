@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ajouter un article{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Ajouter un nouvel article</h1>
+
+        <div class="card shadow-lg">
+            <div class="card-body">
+                {{ form_start(form) }}
+                
+                <!-- Titre de l'article -->
+                <div class="form-group mb-3">
+                    {{ form_label(form.titre, 'Titre de l\'article', { 'label_attr': { 'class': 'form-label' } }) }}
+                    {{ form_widget(form.titre, { 'attr': { 'class': 'form-control', 'placeholder': 'Ceci est un titre' } }) }}
+                </div>
+
+                <!-- Corps de l'article -->
+                <div class="form-group mb-3">
+                    {{ form_label(form.corps, 'Contenu de l\'article', { 'label_attr': { 'class': 'form-label' } }) }}
+                    {{ form_widget(form.corps, { 'attr': { 'class': 'form-control', 'rows': 5, 'placeholder': 'Ceci est le corps...' } }) }}
+                </div>
+
+                <!-- Image de l'article -->
+                <div class="form-group mb-3">
+                    {{ form_label(form.image, 'Image de l\'article', { 'label_attr': { 'class': 'form-label' } }) }}
+                    <div class="custom-file">
+                        {{ form_widget(form.image, { 'attr': { 'class': 'custom-file-input', 'accept': 'image/*' } }) }}
+                        <label class="custom-file-label" for="customFile">Choisir une image</label>
+                    </div>
+                </div>
+
+                <!-- Ajouter l'article -->
+                <div class="form-group text-center mt-4">
+                    <button type="submit" class="btn btn-success btn-lg">Ajouter l'article</button>
+                </div>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

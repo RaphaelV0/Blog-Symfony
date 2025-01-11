@@ -11,6 +11,7 @@ use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 
 class ArticleType extends AbstractType
 {
@@ -36,9 +37,12 @@ class ArticleType extends AbstractType
                 'label' => 'Date de publication',
                 'required' => false,
             ])
-            ->add('submit', SubmitType::class, [
-                'label' => 'Enregistrer l\'article',
+            ->add('etat_publication', CheckboxType::class, [
+                'label'    => 'Publié',
+                'required' => false, // L'admin peut le cocher ou non
+                'attr' => ['class' => 'form-check-input']
             ]);
+          ;
     }
 
     public function configureOptions(OptionsResolver $resolver)

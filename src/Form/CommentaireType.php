@@ -16,13 +16,11 @@ class CommentaireType extends AbstractType
     {
         // Ajouter les champs du formulaire
         $builder
-            ->add('contenu', TextareaType::class, [
+            ->add('content', TextareaType::class, [
                 'label' => 'Votre commentaire', 
                 'attr' => ['placeholder' => 'Entrez votre commentaire ici...', 'rows' => 5]
             ])
-            ->add('submit', SubmitType::class, [
-                'label' => 'Ajouter le commentaire'
-            ]);
+            ;
     }
 
     public function configureOptions(OptionsResolver $resolver): void

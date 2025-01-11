@@ -4,30 +4,33 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Security\Http\Authentication\AuthenticatorManagerInterface;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 
 class RegistrationController extends AbstractController
 {
     #[Route('/register', name: 'app_register')]
-    public function register(Request $request, TranslatorInterface $translator, EntityManagerInterface $em, UserRepository $userRepository, UserPasswordHasherInterface $passwordHasher): Response
+    public function register(Request $request, TranslatorInterface $translator, EntityManagerInterface $em): Response
     {
         $form = $this->createFormBuilder(null)
-            ->add('username', TextType::class, [
-                'label' => $translator->trans('Username (Email)', [], 'messages'),
+            ->add('email', EmailType::class, [
+                'label' => $translator->trans('E-mail (Login)', [], 'messages'),
                 'constraints' => [
                     new Assert\NotBlank(['message' => $translator->trans('This field cannot be blank', [], 'validators')]),
-                    new Assert\Email(['message' => $translator->trans('Please enter a valid email address.', [], 'validators')]),
+                    new Assert\Email(['message' => $translator->trans('This is not a valid email address', [], 'validators')]),
                 ],
             ])
             ->add('password', RepeatedType::class, [
@@ -39,20 +42,9 @@ class RegistrationController extends AbstractController
                     new Assert\NotBlank(['message' => $translator->trans('This field cannot be blank', [], 'validators')]),
                     new Assert\Length([
                         'min' => 8,
+                        'max' => 20,
                         'minMessage' => $translator->trans('Your password must be at least {{ limit }} characters long.', [], 'validators'),
-                        'max' => 4096,
-                    ]),
-                    new Assert\Regex([
-                        'pattern' => '/[A-Z]/',
-                        'message' => $translator->trans('Your password must contain at least one uppercase letter.', [], 'validators'),
-                    ]),
-                    new Assert\Regex([
-                        'pattern' => '/\d/',
-                        'message' => $translator->trans('Your password must contain at least one number.', [], 'validators'),
-                    ]),
-                    new Assert\Regex([
-                        'pattern' => '/[\W_]/',
-                        'message' => $translator->trans('Your password must contain at least one special character.', [], 'validators'),
+                        'maxMessage' => $translator->trans('Your password cannot be longer than {{ limit }} characters.', [], 'validators'),
                     ]),
                 ],
             ])
@@ -66,33 +58,41 @@ class RegistrationController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
 
-            // Vérifier si l'email existe déjà dans la base de données
-            $existingUser = $userRepository->findOneBy(['username' => $data['username']]);
-            if ($existingUser) {
-                $this->addFlash('error', $translator->trans('This email is already in use.', [], 'messages'));
-                return $this->redirectToRoute('app_register');
-            }
+            // Hash the password for storage
+            $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
 
-            // Hash le mot de passe
-            $hashedPassword = $passwordHasher->hashPassword(new User(), $data['password']);
-
-            // Créer un nouvel utilisateur
+            // Create a new User object and save it to the database
             $user = new User();
-            $user->setUsername($data['username']);
+            $user->setEmail($data['email']);
             $user->setPassword($hashedPassword);
-            $user->setRoles(['ROLE_USER']);  // Rôle par défaut
 
-            // Persister l'utilisateur dans la base de données
+            // Persist the user in the database
             $em->persist($user);
             $em->flush();
 
-            // Rediriger vers la page de connexion
-            return $this->redirectToRoute('app_login');
+            // Redirect to the success page with email parameter
+            return $this->redirectToRoute('app_register_success', ['email' => $data['email']]);
         }
 
         return $this->render('registration/register.html.twig', [
             'form' => $form->createView(),
         ]);
-        
+    }
+
+    #[Route('/register/success/{email}', name: 'app_register_success')]
+    public function success(string $email, TranslatorInterface $translator): Response
+    {
+        return new Response(sprintf($translator->trans('Thank you %s for registering', [], 'messages'), $email));
+    }
+
+
+    #[Route('/', name: 'app_home')]
+    public function home(SessionInterface $session, TranslatorInterface $translator): Response
+    {
+        return $this->render('home/index.html.twig', [
+            'is_logged_in' => $session->get('is_logged_in', false),
+            'login' => $session->get('login', null),  // Correctly retrieving the login variable (username or email)
+        ]);
     }
 }
+
