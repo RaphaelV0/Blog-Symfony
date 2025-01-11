@@ -3,80 +3,96 @@
 namespace App\Controller;
 
 use App\Entity\User;
-use App\Form\RegistrationFormType;
-use App\Security\EmailVerifier;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Mime\Address;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Security\Http\Authentication\AuthenticatorManagerInterface;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 
 class RegistrationController extends AbstractController
 {
-    public function __construct(private EmailVerifier $emailVerifier)
-    {
-    }
-
     #[Route('/register', name: 'app_register')]
-    public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager): Response
+    public function register(Request $request, TranslatorInterface $translator, EntityManagerInterface $em): Response
     {
-        $user = new User();
-        $form = $this->createForm(RegistrationFormType::class, $user);
+        $form = $this->createFormBuilder(null)
+            ->add('email', EmailType::class, [
+                'label' => $translator->trans('E-mail (Login)', [], 'messages'),
+                'constraints' => [
+                    new Assert\NotBlank(['message' => $translator->trans('This field cannot be blank', [], 'validators')]),
+                    new Assert\Email(['message' => $translator->trans('This is not a valid email address', [], 'validators')]),
+                ],
+            ])
+            ->add('password', RepeatedType::class, [
+                'type' => PasswordType::class,
+                'first_options' => ['label' => $translator->trans('Password', [], 'messages')],
+                'second_options' => ['label' => $translator->trans('Confirm Password', [], 'messages')],
+                'invalid_message' => $translator->trans('Passwords must match.', [], 'validators'),
+                'constraints' => [
+                    new Assert\NotBlank(['message' => $translator->trans('This field cannot be blank', [], 'validators')]),
+                    new Assert\Length([
+                        'min' => 8,
+                        'max' => 20,
+                        'minMessage' => $translator->trans('Your password must be at least {{ limit }} characters long.', [], 'validators'),
+                        'maxMessage' => $translator->trans('Your password cannot be longer than {{ limit }} characters.', [], 'validators'),
+                    ]),
+                ],
+            ])
+            ->add('submit', SubmitType::class, [
+                'label' => $translator->trans('Create Account', [], 'messages')
+            ])
+            ->getForm();
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var string $plainPassword */
-            $plainPassword = $form->get('plainPassword')->getData();
+            $data = $form->getData();
 
-            // encode the plain password
-            $user->setPassword($userPasswordHasher->hashPassword($user, $plainPassword));
+            // Hash the password for storage
+            $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
 
-            $entityManager->persist($user);
-            $entityManager->flush();
+            // Create a new User object and save it to the database
+            $user = new User();
+            $user->setEmail($data['email']);
+            $user->setPassword($hashedPassword);
 
-            // generate a signed url and email it to the user
-            $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
-                (new TemplatedEmail())
-                    ->from(new Address('mailer@gmail.com', 'No Reply'))
-                    ->to((string) $user->getUserIdentifier())
-                    ->subject('Please Confirm your Email')
-                    ->htmlTemplate('registration/confirmation_email.html.twig')
-            );
+            // Persist the user in the database
+            $em->persist($user);
+            $em->flush();
 
-            // do anything else you need here, like send an email
-
-            return $this->redirectToRoute('home');
+            // Redirect to the success page with email parameter
+            return $this->redirectToRoute('app_register_success', ['email' => $data['email']]);
         }
 
         return $this->render('registration/register.html.twig', [
-            'registrationForm' => $form,
+            'form' => $form->createView(),
         ]);
     }
 
-    #[Route('/verify/email', name: 'app_verify_email')]
-    public function verifyUserEmail(Request $request, TranslatorInterface $translator): Response
+    #[Route('/register/success/{email}', name: 'app_register_success')]
+    public function success(string $email, TranslatorInterface $translator): Response
     {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+        return new Response(sprintf($translator->trans('Thank you %s for registering', [], 'messages'), $email));
+    }
 
-        // validate email confirmation link, sets User::isVerified=true and persists
-        try {
-            /** @var User $user */
-            $user = $this->getUser();
-            $this->emailVerifier->handleEmailConfirmation($request, $user);
-        } catch (VerifyEmailExceptionInterface $exception) {
-            $this->addFlash('verify_email_error', $translator->trans($exception->getReason(), [], 'VerifyEmailBundle'));
 
-            return $this->redirectToRoute('app_register');
-        }
-
-        // @TODO Change the redirect on success and handle or remove the flash message in your templates
-        $this->addFlash('success', 'Your email address has been verified.');
-
-        return $this->redirectToRoute('app_register');
+    #[Route('/', name: 'app_home')]
+    public function home(SessionInterface $session, TranslatorInterface $translator): Response
+    {
+        return $this->render('home/index.html.twig', [
+            'is_logged_in' => $session->get('is_logged_in', false),
+            'login' => $session->get('login', null),  // Correctly retrieving the login variable (username or email)
+        ]);
     }
 }
+

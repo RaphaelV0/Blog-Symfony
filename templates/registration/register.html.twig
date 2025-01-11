@@ -1,23 +1,35 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Register{% endblock %}
-
 {% block body %}
-    {% for flash_error in app.flashes('verify_email_error') %}
-        <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
-    {% endfor %}
-
-    <h1>Register</h1>
-
-    {{ form_errors(registrationForm) }}
-
-    {{ form_start(registrationForm) }}
-        {{ form_row(registrationForm.username) }}
-        {{ form_row(registrationForm.plainPassword, {
-            label: 'Password'
-        }) }}
-        {{ form_row(registrationForm.agreeTerms) }}
-
-        <button type="submit" class="btn">Register</button>
-    {{ form_end(registrationForm) }}
+    <h2>Inscription</h2>
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            {{ form_start(form) }}
+            <div class="mb-3">
+                {{ form_label(form.email) }}  {# Remplacer username par email #}
+                {{ form_widget(form.email, {'attr': {'class': 'form-control'}}) }}
+                {% for error in form.email.vars.errors %}  {# Remplacer username par email #}
+                    <div class="text-danger">{{ error.message }}</div>
+                {% endfor %}
+            </div>
+            <div class="mb-3">
+                {{ form_label(form.password.first) }}
+                {{ form_widget(form.password.first, {'attr': {'class': 'form-control'}}) }}
+                {% for error in form.password.first.vars.errors %}
+                    <div class="text-danger">{{ error.message }}</div>
+                {% endfor %}
+            </div>
+            <div class="mb-3">
+                {{ form_label(form.password.second) }}
+                {{ form_widget(form.password.second, {'attr': {'class': 'form-control'}}) }}
+                {% for error in form.password.second.vars.errors %}
+                    <div class="text-danger">{{ error.message }}</div>
+                {% endfor %}
+            </div>
+            <div class="mb-3">
+                {{ form_widget(form.submit, {'attr': {'class': 'btn btn-primary'}}) }}
+            </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
 {% endblock %}

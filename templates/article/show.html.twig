@@ -1,72 +1,73 @@
-{# templates/article/show.html.twig #}
+{% extends 'base.html.twig' %}
 
-<div class="article-container">
-    <div class="article-main">
-        <h1>{{ article.titre }}</h1>
-        <p>{{ article.corps }}</p>
-<a href="{{ path('article_index') }}">Retour à la liste des articles</a>
+{% block title %}{{ article.titre }}{% endblock %}
 
-        <h2>Commentaires</h2>
-        <div>
-            {% for commentaire in article.commentaires %}
-                <div>
-                    <p>{{ commentaire.contenu }}</p>
-                    <p><em>Publié le {{ commentaire.dateCommentaire|date('d/m/Y H:i') }}</em></p>
+{% block body %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8">
+                <h1>{{ article.titre }}</h1>
+
+                <div class="article-details">
+                    {# Affichage de l'image si elle existe #}
+                    {% if article.image %}
+                        <div class="article-image">
+                            <img src="{{ asset('uploads/images/' ~ article.image) }}" alt="Image de l'article" class="img-fluid">
+                        </div>
+                    {% endif %}
+
+                    <p>{{ article.corps }}</p>
                 </div>
-            {% else %}
-                <p>Aucun commentaire pour cet article.</p>
-                <a href="{{ path('comment_add', {'articleId': article.id}) }}">Ajouter un commentaire</a>
 
-            {% endfor %}
-        </div>
+                <h2>Commentaires</h2>
 
-        <h3>Ajouter un commentaire</h3>
-        {{ form_start(form) }}
-            {{ form_widget(form) }}
-            <button type="submit">Ajouter le commentaire</button>
-        {{ form_end(form) }}
-    </div>
+                <ul>
+                    {% for commentaire in article.commentaires %}
+                        <li>
+                            <strong>{{ commentaire.user.email }}</strong> - {{ commentaire.dateCommentaire|date('d/m/Y H:i') }}
+                            <p>{{ commentaire.content }}</p>
 
-    <div class="article-sidebar">
-        <h3>Autres articles</h3>
-        <ul>
-            {% for other_article in articles %}
-                {% if other_article.id != article.id %}
-                    <li>
-                        <a href="{{ path('article_show', {'id': other_article.id}) }}">{{ other_article.titre }}</a>
-                    </li>
+                            {# Actions pour les administrateurs ou l'utilisateur qui a écrit le commentaire #}
+                            {% if is_granted('ROLE_ADMIN') or commentaire.user == app.user %}
+                                <a href="{{ path('comment_edit', {'id': commentaire.id}) }}" class="btn btn-primary btn-sm">Modifier</a>
+                                <a href="{{ path('comment_delete', {'id': commentaire.id}) }}" 
+                                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce commentaire ?');" 
+                                   class="btn btn-danger btn-sm">Supprimer</a>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+
+                {# Formulaire pour ajouter un commentaire #}
+                <h2>Ajouter un commentaire</h2>
+                {{ form_start(form) }}
+                    {{ form_widget(form) }}
+                    <button type="submit" class="btn btn-success">Ajouter le commentaire</button>
+                {{ form_end(form) }}
+
+                {# Formulaire pour modifier un commentaire (à afficher uniquement sur la page d'édition d'un commentaire) #}
+                {% if edit_form is defined %}
+                    <h2>Modifier le commentaire</h2>
+                    {{ form_start(edit_form) }}
+                        {{ form_widget(edit_form) }}
+                        <button type="submit" class="btn btn-primary">Modifier le commentaire</button>
+                    {{ form_end(edit_form) }}
                 {% endif %}
-            {% endfor %}
-        </ul>
-    </div>
-</div>
-{% for commentaire in article.commentaires %}
-    <div>
-        <p>{{ commentaire.contenu }}</p>
-        <p><em>Publié le {{ commentaire.dateCommentaire|date('d/m/Y H:i') }}</em></p>
-        
-        {% if is_granted('ROLE_ADMIN') %}
-            <a href="{{ path('comment_edit', {'id': commentaire.id}) }}">Modifier</a>
-            <a href="{{ path('comment_delete', {'id': commentaire.id}) }}" onclick="return confirm('Voulez-vous vraiment supprimer ce commentaire ?');">Supprimer</a>
-        {% endif %}
-    </div>
-{% endfor %}
+            </div>
 
-<style>
-    .article-container {
-        display: flex;
-        justify-content: space-between;
-    }
-    .article-main {
-        width: 70%;
-    }
-    .article-sidebar {
-        width: 25%;
-        padding: 10px;
-        background-color: #f0f0f0;
-        border-radius: 5px;
-    }
-    .article-sidebar h3 {
-        margin-top: 0;
-    }
-</style>
+            <div class="col-md-4">
+                <h3>Articles récents</h3>
+                <ul class="list-group">
+                    {% for otherArticle in articles|slice(0, 5) %}
+                        <li class="list-group-item">
+                            <a href="{{ path('article_show', {'id': otherArticle.id}) }}">
+                                {{ otherArticle.titre }}
+                            </a>
+                            <small class="text-muted">{{ otherArticle.datePublication|date('d/m/Y') }}</small>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}

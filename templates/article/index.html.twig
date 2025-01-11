@@ -1,20 +1,44 @@
-<h1>Liste des articles</h1>
-<a href="{{ path('article_add') }}">Ajouter un article</a>
+{% extends 'base.html.twig' %}
 
-<ul>
-    {% for article in articles %}
-        <li>
-        
-            <a href="{{ path('article_show', {'id': article.id}) }}">
-                {{ article.titre }}
-            </a>
-            <p>{{ article.datePublication|date('d/m/Y') }}</p>
-            <p>{{ article.corps[:150] ~ '...' }}</p>
-            <a href="{{ path('article_edit', {'id': article.id}) }}">Modifier</a>
-<a href="{{ path('article_delete', {'id': article.id}) }}" onclick="return confirm('Voulez-vous vraiment supprimer cet article ?');">Supprimer</a>
+{% block title %}Liste des articles{% endblock %}
 
-        </li>
-    {% else %}
-        <li>Aucun article disponible pour le moment.</li>
-    {% endfor %}
-</ul>
+{% block body %}
+    <h1>Liste des articles</h1>
+
+    <ul>
+        {% for article in articles %}
+            <li>
+                <h2><a href="{{ path('article_show', {'id': article.id}) }}">{{ article.titre }}</a></h2>
+
+                {# Affichage de l'image si elle existe #}
+                {% if article.image %}
+                    <div class="article-image">
+                        <img src="{{ asset('uploads/images/' ~ article.image) }}" alt="Image de l'article" class="img-thumbnail" width="100">
+                    </div>
+                {% endif %}
+
+                <p>{{ article.corps|slice(0, 100) }}...</p>
+
+                {# Affichage de la date de publication #}
+                <p><small>Publié le : {{ article.datePublication|date('d/m/Y') }}</small></p>
+
+                {# Actions disponibles pour les administrateurs #}
+                {% if is_granted('ROLE_ADMIN') %}
+                    <div class="article-actions">
+                        <a href="{{ path('article_edit', {'id': article.id}) }}" class="btn btn-primary">Modifier</a>
+                        <a href="{{ path('article_delete', {'id': article.id}) }}" 
+                           onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet article ?');" 
+                           class="btn btn-danger">Supprimer</a>
+                    </div>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+
+    {# Bouton pour ajouter un article visible pour les administrateurs #}
+    {% if is_granted('ROLE_ADMIN') %}
+        <div class="add-article">
+            <a href="{{ path('article_add') }}" class="btn btn-success">Ajouter un article</a>
+        </div>
+    {% endif %}
+{% endblock %}
