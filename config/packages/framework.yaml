@@ -2,7 +2,8 @@
 framework:
     secret: '%env(APP_SECRET)%'
     #csrf_protection: true
-
+    trusted_proxies: '10.5.10.0/8'
+    trusted_headers: ['x-forwarded-for', 'x-forwarded-host', 'x-forwarded-port']
     # Note that the session will be started ONLY if you read or write from it.
     session: true
 
