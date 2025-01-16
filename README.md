@@ -56,7 +56,7 @@ Ce projet est une plateforme de blog où les utilisateurs peuvent créer un comp
 
     Exemple de configuration pour MySQL :
     ```dotenv
-    DATABASE_URL="mysql://admin:V0712@127.0.0.1:3306/blog?serverVersion=5.7"
+    DATABASE_URL="mysql://raphael.verchain:dkHcu2CL@10.5.10.1:3306/raphael.verchain?serverVersion=8.0.31&charset=utf8mb4"
     ```
 
     Créez la base de données et appliquez les migrations :
@@ -70,16 +70,16 @@ Ce projet est une plateforme de blog où les utilisateurs peuvent créer un comp
     symfony serve
     ```
 
-    Vous pouvez maintenant accéder à l'application à l'adresse `http://localhost:8000`.
+    Vous pouvez maintenant accéder à l'application à l'adresse `http://raphael-verchain.insset.ohv`.
 
 ## Utilisation
 
-1. Ouvrez votre navigateur et accédez à `http://localhost:8000` pour commencer à utiliser l'application.
+1. Ouvrez votre navigateur et accédez à `http://raphael-verchain.insset.ovh` pour commencer à utiliser l'application.
 2. Si vous êtes un utilisateur lambda, vous pouvez créer un compte pour pouvoir commenter les articles.
-3. Si vous êtes un administrateur, vous pouvez gérer les articles et les commentaires dans le tableau de bord.
+3. Si vous êtes un administrateur (login : admin@gmail.com password : Test123* ), vous pouvez gérer les articles et les commentaires dans le tableau de bord.
 
 ### Fonctionnalités utilisateur
-- Créez un compte pour vous inscrire par défaut vous êtes un utilisateur lambda (pour être administrateur écrire "ROLE_ADMIN", à role dans la base de données.
+- Créez un compte pour vous inscrire par défaut vous êtes un utilisateur lambda (pour être administrateur écrire ["ROLE_ADMIN"], à role dans la base de données.
 - Commentez les articles existants.
 - Visualisez les articles avec ou sans image, et l'état de publication.
 
