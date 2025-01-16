@@ -80,6 +80,7 @@ Ce projet est une plateforme de blog où les utilisateurs peuvent créer un comp
 
 ### Fonctionnalités utilisateur
 - Créez un compte pour vous inscrire par défaut vous êtes un utilisateur lambda (pour être administrateur écrire ["ROLE_ADMIN"], à role dans la base de données.
+- Après avoir crée votre compte, vous êtes sur une page pour confirmer votre inscription, revenez sur la page d'accueil du site pour pouvoir vous connecter.
 - Commentez les articles existants.
 - Visualisez les articles avec ou sans image, et l'état de publication.
 
