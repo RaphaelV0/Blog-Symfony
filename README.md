@@ -42,8 +42,8 @@ Ce projet est une plateforme de blog où les utilisateurs peuvent créer un comp
 
 1. **Clonez le projet**
     ```bash
-    git clone https://github.com/votre-utilisateur/projets-2023-2024-RaphaelV0.git
-    cd projets-2023-2024-RaphaelV0
+    git clone https://github.com/RaphaelV0/Blog-Symfony.git
+    cd Blog-Symfony
     ```
 
 2. **Installez les dépendances**
@@ -56,7 +56,7 @@ Ce projet est une plateforme de blog où les utilisateurs peuvent créer un comp
 
     Exemple de configuration pour MySQL :
     ```dotenv
-    DATABASE_URL="mysql://raphael.verchain:dkHcu2CL@10.5.10.1:3306/raphael.verchain?serverVersion=8.0.31&charset=utf8mb4"
+    DATABASE_URL="..."
     ```
 
     Créez la base de données et appliquez les migrations :
@@ -70,13 +70,10 @@ Ce projet est une plateforme de blog où les utilisateurs peuvent créer un comp
     symfony serve
     ```
 
-    Vous pouvez maintenant accéder à l'application à l'adresse `http://raphael-verchain.insset.ohv`.
-
 ## Utilisation
 
-1. Ouvrez votre navigateur et accédez à `http://raphael-verchain.insset.ovh` pour commencer à utiliser l'application.
-2. Si vous êtes un utilisateur lambda, vous pouvez créer un compte pour pouvoir commenter les articles.
-3. Si vous êtes un administrateur (login : admin@gmail.com password : Test123* ), vous pouvez gérer les articles et les commentaires dans le tableau de bord.
+1. Si vous êtes un utilisateur lambda, vous pouvez créer un compte pour pouvoir commenter les articles.
+2. Si vous êtes un administrateur (login : admin@gmail.com password : Test123* ), vous pouvez gérer les articles et les commentaires dans le tableau de bord.
 
 ### Fonctionnalités utilisateur
 - Créez un compte pour vous inscrire par défaut vous êtes un utilisateur lambda (pour être administrateur écrire ["ROLE_ADMIN"], à role dans la base de données.
